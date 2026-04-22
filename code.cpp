@@ -368,6 +368,7 @@ int2048 &int2048::operator/=(const int2048 &other) {
 
         result.push_back(x);
         current = current - absOther * int2048(x);
+        current.removeLeadingZeros(current.digits);
     }
 
     // Reverse to get most significant digit first
