@@ -145,7 +145,12 @@ void int2048::read(const std::string &s) {
 
 // Print the number
 void int2048::print() {
-    if (sign == -1 && !(digits.size() == 1 && digits[0] == 0)) {
+    if (digits.empty() || (digits.size() == 1 && digits[0] == 0)) {
+        std::cout << '0';
+        return;
+    }
+
+    if (sign == -1) {
         std::cout << '-';
     }
 
@@ -404,7 +409,12 @@ std::istream &operator>>(std::istream &in, int2048 &num) {
 }
 
 std::ostream &operator<<(std::ostream &out, const int2048 &num) {
-    if (num.sign == -1 && !(num.digits.size() == 1 && num.digits[0] == 0)) {
+    if (num.digits.empty() || (num.digits.size() == 1 && num.digits[0] == 0)) {
+        out << '0';
+        return out;
+    }
+
+    if (num.sign == -1) {
         out << '-';
     }
 
