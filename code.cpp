@@ -327,7 +327,8 @@ int2048 operator*(int2048 a, const int2048 &b) {
 // Division (floor division towards negative infinity)
 int2048 &int2048::operator/=(const int2048 &other) {
     if (other.isZero()) {
-        // Division by zero - undefined behavior as per requirements
+        // Division by zero - return 0 to avoid crash
+        *this = int2048();
         return *this;
     }
 
@@ -392,6 +393,11 @@ int2048 operator/(int2048 a, const int2048 &b) {
 
 // Modulo operation
 int2048 &int2048::operator%=(const int2048 &other) {
+    if (other.isZero()) {
+        // Modulo by zero - return 0 to avoid crash
+        *this = int2048();
+        return *this;
+    }
     int2048 quotient = *this / other;
     *this = *this - quotient * other;
     return *this;
