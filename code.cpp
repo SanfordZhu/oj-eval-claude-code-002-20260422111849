@@ -350,6 +350,7 @@ int2048 &int2048::operator/=(const int2048 &other) {
     // Long division
     std::vector<int> result;
     int2048 current;
+    bool hasRemainder = false;
 
     for (int i = digits.size() - 1; i >= 0; i--) {
         current.digits.insert(current.digits.begin(), digits[i]);
@@ -370,6 +371,7 @@ int2048 &int2048::operator/=(const int2048 &other) {
         result.push_back(x);
         current = current - absOther * int2048(x);
         current.removeLeadingZeros(current.digits);
+        if (!current.isZero()) hasRemainder = true;
     }
 
     // Reverse to get most significant digit first
@@ -380,7 +382,7 @@ int2048 &int2048::operator/=(const int2048 &other) {
     removeLeadingZeros(digits);
 
     // Handle negative division (floor towards negative infinity)
-    if (sign == -1 && !current.isZero()) {
+    if (sign == -1 && hasRemainder) {
         *this = *this - int2048(1);
     }
 
