@@ -19,7 +19,14 @@
 
 namespace sjtu {
 class int2048 {
-  // todo
+private:
+  std::vector<int> digits;
+  int sign;
+
+  bool isZero() const;
+  int2048 abs() const;
+  static void removeLeadingZeros(std::vector<int> &a);
+
 public:
   // Constructors
   int2048();

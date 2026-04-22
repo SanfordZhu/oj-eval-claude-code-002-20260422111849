@@ -1,4 +1,8 @@
-#include "include/int2048.h"
+#include <complex>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <vector>
 #include <algorithm>
 #include <sstream>
 
@@ -13,6 +17,70 @@ void removeLeadingZeros(std::vector<int> &a) {
         a.pop_back();
     }
 }
+
+class int2048 {
+private:
+    std::vector<int> digits;
+    int sign;
+
+    bool isZero() const;
+    int2048 abs() const;
+    static void removeLeadingZeros(std::vector<int> &a);
+
+public:
+    // Constructors
+    int2048();
+    int2048(long long);
+    int2048(const std::string &);
+    int2048(const int2048 &);
+
+    // Read from string
+    void read(const std::string &);
+    // Output the stored big integer, no need for newline
+    void print();
+
+    // Add a big integer
+    int2048 &add(const int2048 &);
+    // Return the sum of two big integers
+    friend int2048 add(int2048, const int2048 &);
+
+    // Subtract a big integer
+    int2048 &minus(const int2048 &);
+    // Return the difference of two big integers
+    friend int2048 minus(int2048, const int2048 &);
+
+    int2048 operator+() const;
+    int2048 operator-() const;
+
+    int2048 &operator=(const int2048 &);
+
+    int2048 &operator+=(const int2048 &);
+    friend int2048 operator+(int2048, const int2048 &);
+
+    int2048 &operator-=(const int2048 &);
+    friend int2048 operator-(int2048, const int2048 &);
+
+    int2048 &operator*=(const int2048 &);
+    friend int2048 operator*(int2048, const int2048 &);
+
+    int2048 &operator/=(const int2048 &);
+    friend int2048 operator/(int2048, const int2048 &);
+
+    int2048 &operator%=(const int2048 &);
+    friend int2048 operator%(int2048, const int2048 &);
+
+    friend std::istream &operator>>(std::istream &, int2048 &);
+    friend std::ostream &operator<<(std::ostream &, const int2048 &);
+
+    friend bool operator==(const int2048 &, const int2048 &);
+    friend bool operator!=(const int2048 &, const int2048 &);
+    friend bool operator<(const int2048 &, const int2048 &);
+    friend bool operator>(const int2048 &, const int2048 &);
+    friend bool operator<=(const int2048 &, const int2048 &);
+    friend bool operator>=(const int2048 &, const int2048 &);
+};
+
+// Implementation of all methods...
 
 // Constructors
 int2048::int2048() : sign(1) {}
@@ -216,7 +284,7 @@ int2048 operator-(int2048 a, const int2048 &b) {
     return a.minus(b);
 }
 
-// Multiplication using Karatsuba algorithm for large numbers
+// Multiplication
 int2048 &int2048::operator*=(const int2048 &other) {
     if (isZero() || other.isZero()) {
         *this = int2048();
