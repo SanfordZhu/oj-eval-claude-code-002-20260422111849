@@ -300,6 +300,94 @@ int2048 operator-(int2048 a, const int2048 &b) {
     return a.minus(b);
 }
 
+// Karatsuba multiplication
+std::vector<int> karatsuba(const std::vector<int> &a, const std::vector<int> &b) {
+    if (a.size() == 0 || b.size() == 0) return std::vector<int>();
+
+    if (a.size() < 10 || b.size() < 10) {
+        // Use simple multiplication for small numbers
+        std::vector<long long> temp(a.size() + b.size(), 0);
+        for (int i = 0; i < a.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                temp[i + j] += (long long)a[i] * b[j];
+            }
+        }
+
+        std::vector<int> result;
+        long long carry = 0;
+        for (int i = 0; i < temp.size() || carry; i++) {
+            if (i < temp.size()) carry += temp[i];
+            result.push_back(carry % BASE);
+            carry /= BASE;
+        }
+        return result;
+    }
+
+    int n = std::max(a.size(), b.size());
+    int half = (n + 1) / 2;
+
+    std::vector<int> a_low(a.begin(), a.begin() + std::min(half, (int)a.size()));
+    std::vector<int> a_high(a.begin() + std::min(half, (int)a.size()), a.end());
+    std::vector<int> b_low(b.begin(), b.begin() + std::min(half, (int)b.size()));
+    std::vector<int> b_high(b.begin() + std::min(half, (int)b.size()), b.end());
+
+    std::vector<int> z0 = karatsuba(a_low, b_low);
+    std::vector<int> z2 = karatsuba(a_high, b_high);
+
+    // Calculate z1 = (a_low + a_high) * (b_low + b_high) - z0 - z2
+    std::vector<int> a_sum = addVectors(a_low, a_high);
+    std::vector<int> b_sum = addVectors(b_low, b_high);
+    std::vector<int> z1 = karatsuba(a_sum, b_sum);
+
+    // z1 = z1 - z0 - z2
+    std::vector<int> temp = addVectors(z0, z2);
+    z1 = subtractVectors(z1, temp);
+
+    // Combine results
+    std::vector<int> result = z2;
+
+    // Add z1 shifted by half
+    if (z1.size() > 0) {
+        if (result.size() < half + z1.size()) {
+            result.resize(half + z1.size());
+        }
+        long long carry = 0;
+        for (int i = 0; i < z1.size() || carry; i++) {
+            long long sum = carry;
+            if (i < z1.size()) sum += z1[i];
+            if (half + i < result.size()) sum += result[half + i];
+            else if (sum == 0 && carry == 0) break;
+
+            if (half + i >= result.size()) {
+                result.push_back(sum % BASE);
+            } else {
+                result[half + i] = sum % BASE;
+            }
+            carry = sum / BASE;
+        }
+    }
+
+    // Add z0
+    if (z0.size() > 0) {
+        long long carry = 0;
+        for (int i = 0; i < z0.size() || carry; i++) {
+            long long sum = carry;
+            if (i < z0.size()) sum += z0[i];
+            if (i < result.size()) sum += result[i];
+            else if (sum == 0 && carry == 0) break;
+
+            if (i >= result.size()) {
+                result.push_back(sum % BASE);
+            } else {
+                result[i] = sum % BASE;
+            }
+            carry = sum / BASE;
+        }
+    }
+
+    return result;
+}
+
 // Multiplication
 int2048 &int2048::operator*=(const int2048 &other) {
     if (isZero() || other.isZero()) {
@@ -308,25 +396,7 @@ int2048 &int2048::operator*=(const int2048 &other) {
     }
 
     sign *= other.sign;
-
-    // Simple O(n^2) multiplication for now
-    std::vector<long long> temp(digits.size() + other.digits.size(), 0);
-
-    for (int i = 0; i < digits.size(); i++) {
-        for (int j = 0; j < other.digits.size(); j++) {
-            temp[i + j] += (long long)digits[i] * other.digits[j];
-        }
-    }
-
-    // Handle carries
-    digits.clear();
-    long long carry = 0;
-    for (int i = 0; i < temp.size() || carry; i++) {
-        if (i < temp.size()) carry += temp[i];
-        digits.push_back(carry % BASE);
-        carry /= BASE;
-    }
-
+    digits = karatsuba(digits, other.digits);
     removeLeadingZeros(digits);
     return *this;
 }
