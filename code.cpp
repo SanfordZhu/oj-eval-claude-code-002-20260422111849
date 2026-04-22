@@ -156,7 +156,18 @@ void int2048::print() {
 
     std::cout << digits.back();
     for (int i = digits.size() - 2; i >= 0; i--) {
-        std::cout << std::string(BASE_DIGITS - std::to_string(digits[i]).length(), '0') << digits[i];
+        // Print leading zeros without creating temporary string
+        int digit = digits[i];
+        int len = 1;
+        int temp = digit;
+        while (temp >= 10) {
+            temp /= 10;
+            len++;
+        }
+        for (int j = 0; j < BASE_DIGITS - len; j++) {
+            std::cout << '0';
+        }
+        std::cout << digit;
     }
 }
 
@@ -429,7 +440,18 @@ std::ostream &operator<<(std::ostream &out, const int2048 &num) {
 
     out << num.digits.back();
     for (int i = num.digits.size() - 2; i >= 0; i--) {
-        out << std::string(BASE_DIGITS - std::to_string(num.digits[i]).length(), '0') << num.digits[i];
+        // Print leading zeros without creating temporary string
+        int digit = num.digits[i];
+        int len = 1;
+        int temp = digit;
+        while (temp >= 10) {
+            temp /= 10;
+            len++;
+        }
+        for (int j = 0; j < BASE_DIGITS - len; j++) {
+            out << '0';
+        }
+        out << digit;
     }
 
     return out;
